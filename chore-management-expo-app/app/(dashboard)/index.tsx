@@ -11,6 +11,7 @@ import { ChoreList } from '@/components/ChoreList';
 import { TenantList } from '@/components/TenantList';
 import { AddChoreModal } from '@/components/AddChoreModal';
 import { AssignChoreModal } from '@/components/AssignChoreModal';
+import { RoleIndicator } from '@/components/ui/RoleIndicator';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -119,6 +120,7 @@ export default function DashboardScreen() {
           {currentHouse && (
             <Text style={styles.houseName}>{currentHouse.name}</Text>
           )}
+          <RoleIndicator role={user.role} style={styles.roleIndicator} />
           <View style={styles.headerButtons}>
             <TouchableOpacity 
               onPress={() => {
@@ -308,6 +310,10 @@ const styles = StyleSheet.create({
     color: Colors.text,
     opacity: 0.8,
     marginBottom: 8,
+  },
+  roleIndicator: {
+    alignSelf: 'flex-end',
+    marginBottom: 4,
   },
   headerButtons: {
     flexDirection: 'row',

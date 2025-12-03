@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useApp } from '@/context/AppContext';
 import { ChoreList } from '@/components/ChoreList';
 import { deleteChore } from '@/services/chores';
+import { RoleIndicator } from '@/components/ui/RoleIndicator';
 
 export default function ArchiveScreen() {
   const router = useRouter();
@@ -83,6 +84,10 @@ export default function ArchiveScreen() {
           </View>
         </View>
 
+        {user && (
+          <RoleIndicator role={user.role} style={styles.roleIndicator} />
+        )}
+
         <View style={styles.infoContainer}>
           <Text style={styles.subtitle}>Completed and Archived Chores</Text>
           {archivedChores.length > 0 && (
@@ -150,6 +155,10 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     color: Colors.text,
+  },
+  roleIndicator: {
+    marginBottom: 12,
+    alignSelf: 'flex-end',
   },
   infoContainer: {
     marginBottom: 24,
