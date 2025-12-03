@@ -559,6 +559,7 @@ export async function deleteChore(choreId: string): Promise<void> {
     throw new Error('You do not have permission to delete this chore');
   }
 
+<<<<<<< HEAD
   // Remove from archived list if it exists
   try {
     await removeArchivedChoreId(choreId);
@@ -566,6 +567,8 @@ export async function deleteChore(choreId: string): Promise<void> {
     console.warn('Failed to remove archived chore from local storage:', storageError);
   }
 
+=======
+>>>>>>> origin
   const { error } = await supabase
     .from('chores')
     .delete()

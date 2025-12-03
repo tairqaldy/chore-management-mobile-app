@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User } from '@/types';
 import { signIn, signUp, signOut, getCurrentUser, getSession, isEmailVerified, resendVerificationEmail } from '@/services/auth';
+import { signIn, signUp, signOut, getCurrentUser, getSession } from '@/services/auth';
 import { supabase } from '@/services/supabase';
 
 interface AuthContextType {
@@ -13,6 +14,9 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
   resendVerificationEmail: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, username: string, role: 'host' | 'tenant') => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,6 +65,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
 
     // Listen for auth changes
+
+  useEffect(() => {
+    // Clear any existing session on app start to force re-login
+    const clearSession = async () => {
+      try {
+        // Sign out any existing session
+        await supabase.auth.signOut();
+      } catch (error) {
+        console.error('Error clearing session:', error);
+      }
+      setSession(null);
+      setUser(null);
+      setLoading(false);
+    };
+
+    clearSession();
+
+    // Listen for auth changes (will only fire after manual login)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       if (session) {
@@ -70,6 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setUser(null);
         setEmailVerified(false);
+      } else {
+        setUser(null);
       }
       setLoading(false);
     });
@@ -139,6 +163,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signOut: handleSignOut,
         checkEmailVerification: handleCheckEmailVerification,
         resendVerificationEmail: handleResendVerificationEmail,
+        signIn: handleSignIn,
+        signUp: handleSignUp,
+        signOut: handleSignOut,
       }}
     >
       {children}

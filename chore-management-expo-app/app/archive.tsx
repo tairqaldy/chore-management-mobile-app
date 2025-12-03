@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +15,7 @@ export default function ArchiveScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { archivedChores, refreshArchivedChores, refreshChores } = useApp();
+  const { archivedChores, refreshArchivedChores } = useApp();
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -103,6 +105,16 @@ export default function ArchiveScreen() {
             <Text style={styles.emptyText}>No archived chores yet</Text>
             <Text style={styles.emptySubtext}>
               Complete chores and archive them to see them here
+          <Text style={styles.title}>ARCHIVE</Text>
+        </View>
+
+        <Text style={styles.subtitle}>Completed and Archived Chores</Text>
+
+        {archivedChores.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No archived chores yet</Text>
+            <Text style={styles.emptySubtext}>
+              Swipe left on completed chores to archive them
             </Text>
           </View>
         ) : (
@@ -137,6 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 24,
+    marginBottom: 20,
     marginTop: 10,
   },
   backButton: {
@@ -193,6 +206,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 8,
     textAlign: 'center',
+    flex: 1,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: Colors.text,
+    opacity: 0.8,
+    marginBottom: 20,
+  },
+  emptyContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 18,
+    color: Colors.text,
+    opacity: 0.6,
+    marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,

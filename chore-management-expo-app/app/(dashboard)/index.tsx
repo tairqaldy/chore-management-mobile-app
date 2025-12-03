@@ -332,11 +332,14 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: Colors.inputBorder,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
   },
   archiveText: {
     fontSize: 14,
     fontWeight: '600',
     color: Colors.text,
+    textDecorationLine: 'underline',
   },
   leaveHouseButton: {
     paddingVertical: 4,
