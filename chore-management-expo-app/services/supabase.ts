@@ -2,7 +2,6 @@ import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Supabase configuration
 // These should be set as environment variables in production
@@ -11,24 +10,50 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // Custom storage adapter for React Native
 const ExpoSecureStoreAdapter = {
-  getItem: async (key: string) => {
-    if (Platform.OS === 'web') {
-      return AsyncStorage.getItem(key);
+  getItem: async (key: string): Promise<string | null> => {
+    try {
+      if (Platform.OS === 'web') {
+        // Use localStorage for web, but check if it's available (not SSR)
+        if (typeof window !== 'undefined' && window.localStorage) {
+          return window.localStorage.getItem(key);
+        }
+        return null;
+      }
+      // iOS and Android: Use SecureStore (secure keychain storage)
+      return await SecureStore.getItemAsync(key);
+    } catch (error) {
+      console.error('Error getting item from storage:', error);
+      return null;
     }
-    return await SecureStore.getItemAsync(key);
   },
-  setItem: async (key: string, value: string) => {
-    if (Platform.OS === 'web') {
-      await AsyncStorage.setItem(key, value);
-    } else {
-      await SecureStore.setItemAsync(key, value);
+  setItem: async (key: string, value: string): Promise<void> => {
+    try {
+      if (Platform.OS === 'web') {
+        // Use localStorage for web, but check if it's available (not SSR)
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem(key, value);
+        }
+      } else {
+        // iOS and Android: Use SecureStore (secure keychain storage)
+        await SecureStore.setItemAsync(key, value);
+      }
+    } catch (error) {
+      console.error('Error setting item in storage:', error);
     }
   },
-  removeItem: async (key: string) => {
-    if (Platform.OS === 'web') {
-      await AsyncStorage.removeItem(key);
-    } else {
-      await SecureStore.deleteItemAsync(key);
+  removeItem: async (key: string): Promise<void> => {
+    try {
+      if (Platform.OS === 'web') {
+        // Use localStorage for web, but check if it's available (not SSR)
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.removeItem(key);
+        }
+      } else {
+        // iOS and Android: Use SecureStore (secure keychain storage)
+        await SecureStore.deleteItemAsync(key);
+      }
+    } catch (error) {
+      console.error('Error removing item from storage:', error);
     }
   },
 };
@@ -42,4 +67,3 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
   },
 });
-

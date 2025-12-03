@@ -74,7 +74,7 @@ export default function SignupScreen() {
         style={styles.backButton} 
         onPress={() => router.back()}
       >
-        <Ionicons name="arrow-back" size={24} color={Colors.text} />
+        <Ionicons name="arrow-back" size={26} color="#6BCF8E" />
       </TouchableOpacity>
       
       <Text style={styles.title}>CHORES</Text>
@@ -162,33 +162,34 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#0E0E10',
   },
   content: {
     flexGrow: 1,
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 80,
     justifyContent: 'center',
   },
   backButton: {
     position: 'absolute',
-    top: 20,
+    top: 60,
     left: 20,
     zIndex: 10,
     padding: 8,
   },
   title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontSize: 42,
+    fontWeight: '900',
+    color: '#6BCF8E',
     textAlign: 'center',
-    marginBottom: 8,
+    letterSpacing: 2,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 24,
-    color: Colors.text,
+    fontSize: 20,
+    color: '#AFAFAF',
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
   },
   form: {
     width: '100%',

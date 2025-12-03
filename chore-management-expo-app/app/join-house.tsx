@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Colors } from '@/constants/theme';
@@ -13,6 +22,7 @@ export default function JoinHouseScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { currentHouse, loading: appLoading, refreshHouse } = useApp();
+
   const [houses, setHouses] = useState<HouseWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState<string | null>(null);
@@ -69,6 +79,16 @@ export default function JoinHouseScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      
+      {/*<TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.push('/welcome')}
+      >
+        <Ionicons name="arrow-back" size={26} color="#6BCF8E" />
+      </TouchableOpacity>
+      Commented out as we cant go back to welcome screen from join house screen (Tair)
+      */}
+
       <Text style={styles.title}>CHORES</Text>
       <Text style={styles.subtitle}>JOIN HOUSE</Text>
 
@@ -84,17 +104,29 @@ export default function JoinHouseScreen() {
             >
               <Card style={styles.houseCard}>
                 <Text style={styles.houseName}>{house.name}</Text>
+
                 {house.description && (
-                  <Text style={styles.houseDescription}>{house.description}</Text>
+                  <Text style={styles.houseDescription}>
+                    {house.description}
+                  </Text>
                 )}
+
                 <Text style={styles.houseInfo}>
                   {house.current_tenant_count || 0} / {house.max_tenants} tenants
                 </Text>
+
                 {house.host_username && (
-                  <Text style={styles.houseInfo}>Host: {house.host_username}</Text>
+                  <Text style={styles.houseInfo}>
+                    Host: {house.host_username}
+                  </Text>
                 )}
+
                 {joining === house.id && (
-                  <ActivityIndicator size="small" color={Colors.text} style={styles.loading} />
+                  <ActivityIndicator
+                    size="small"
+                    color={Colors.text}
+                    style={styles.loading}
+                  />
                 )}
               </Card>
             </TouchableOpacity>
@@ -102,7 +134,7 @@ export default function JoinHouseScreen() {
         </View>
       )}
 
-      <Button
+      {/*<Button
         title="SUBMIT"
         onPress={() => {
           if (houses.length > 0) {
@@ -111,7 +143,10 @@ export default function JoinHouseScreen() {
         }}
         style={styles.button}
         disabled={houses.length === 0}
-      />
+      />    
+      
+      Commented out for now as we have on touch house join functionality (Tair)
+      */}
     </ScrollView>
   );
 }
@@ -119,59 +154,102 @@ export default function JoinHouseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#0E0E10',
   },
+
   content: {
     padding: 20,
+    paddingTop: 80,
   },
+
+
+  backButton: {
+    position: 'absolute',
+    top: 50,    
+    left: 20,
+    zIndex: 10,
+    padding: 8,
+  },
+
   title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontSize: 42,
+    fontWeight: '900',
+    color: '#6BCF8E',
     textAlign: 'center',
-    marginBottom: 8,
+    letterSpacing: 2,
+    marginBottom: 6,
   },
+
   subtitle: {
-    fontSize: 24,
-    color: Colors.text,
+    fontSize: 20,
+    color: '#AFAFAF',
     textAlign: 'center',
     marginBottom: 30,
   },
+
   housesList: {
     marginBottom: 20,
   },
+
   houseCard: {
     marginBottom: 12,
+    backgroundColor: '#1A1A1D',
+    borderRadius: 18,
+    padding: 16,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 6,
+
+    borderWidth: 1,
+    borderColor: '#2A2A2E',
   },
+
   houseName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: '#FFFFFF',
     marginBottom: 8,
   },
+
   houseDescription: {
     fontSize: 14,
-    color: Colors.text,
-    opacity: 0.8,
+    color: '#CCCCCC',
     marginBottom: 8,
   },
+
   houseInfo: {
     fontSize: 12,
-    color: Colors.text,
-    opacity: 0.7,
+    color: '#AFAFAF',
     marginTop: 4,
   },
+
   loading: {
     marginTop: 8,
   },
+
   emptyText: {
     fontSize: 16,
-    color: Colors.text,
+    color: '#AFAFAF',
     textAlign: 'center',
     marginVertical: 40,
   },
+
   button: {
+    width: '100%',
+    height: 54,
+    backgroundColor: '#1E7D1E',
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 20,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 6,
   },
 });
-

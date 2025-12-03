@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
@@ -13,11 +20,13 @@ export default function CreateHouseScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { currentHouse, loading: appLoading, refreshHouse } = useApp();
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [maxTenants, setMaxTenants] = useState('10');
   const [loading, setLoading] = useState(false);
   const [houseCreated, setHouseCreated] = useState(false);
+
   const [errors, setErrors] = useState<{
     name?: string;
     maxTenants?: string;
@@ -28,23 +37,19 @@ export default function CreateHouseScreen() {
       router.replace('/welcome');
       return;
     }
-    
-    // Wait for app context to finish loading before checking house
+
     if (!appLoading) {
-      // If host already has a house, redirect to dashboard
       if (currentHouse) {
         router.replace('/(dashboard)');
       }
     }
   }, [user, currentHouse, appLoading]);
 
-  // Watch for house to be set after creation
   useEffect(() => {
     if (houseCreated && currentHouse) {
       setLoading(false);
       router.replace('/(dashboard)');
     } else if (houseCreated && !currentHouse) {
-      // If house was created but not loaded yet, try refreshing again
       const retryRefresh = async () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         await refreshHouse();
@@ -79,9 +84,8 @@ export default function CreateHouseScreen() {
         description: description.trim() || undefined,
         max_tenants: parseInt(maxTenants, 10),
       });
-      // Mark that house was created
+
       setHouseCreated(true);
-      // Refresh house in context - this will trigger the useEffect to redirect
       await refreshHouse();
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to create house');
@@ -91,13 +95,10 @@ export default function CreateHouseScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <TouchableOpacity 
-        style={styles.backButton} 
-        onPress={() => router.back()}
-      >
-        <Ionicons name="arrow-back" size={24} color={Colors.text} />
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={24} color="#6BCF8E" />
       </TouchableOpacity>
-      
+
       <Text style={styles.title}>CHORES</Text>
       <Text style={styles.subtitle}>CREATE HOUSE</Text>
 
@@ -142,39 +143,70 @@ export default function CreateHouseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#0E0E10',
   },
+
   content: {
     flexGrow: 1,
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 80,
     justifyContent: 'center',
   },
+
   backButton: {
     position: 'absolute',
-    top: 20,
+    top: 30,
     left: 20,
     zIndex: 10,
     padding: 8,
   },
+
   title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontSize: 42,
+    fontWeight: '900',
+    color: '#6BCF8E',
     textAlign: 'center',
-    marginBottom: 8,
+    letterSpacing: 2,
+    marginBottom: 6,
   },
+
   subtitle: {
-    fontSize: 24,
-    color: Colors.text,
+    fontSize: 20,
+    color: '#AFAFAF',
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: 36,
   },
+
   form: {
     width: '100%',
+    backgroundColor: '#1A1A1D',
+    borderRadius: 24,
+    paddingVertical: 32,
+    paddingHorizontal: 22,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 10,
+    elevation: 8,
+
+    borderWidth: 1,
+    borderColor: '#2A2A2E',
   },
+
   button: {
-    marginTop: 8,
+    width: '100%',
+    height: 54,
+    backgroundColor: '#1E7D1E',
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 12,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 6,
   },
 });
-

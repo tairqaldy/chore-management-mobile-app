@@ -41,12 +41,31 @@ export default function DashboardScreen() {
   }, [user, currentHouse]);
 
   const handleSignOut = async () => {
-    try {
-      await signOutUser();
-      router.replace('/welcome');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to sign out');
-    }
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('Attempting to sign out...');
+              await signOutUser();
+              console.log('Sign out successful, redirecting...');
+              router.replace('/welcome');
+            } catch (error: any) {
+              console.error('Error signing out:', error);
+              Alert.alert('Error', error?.message || 'Failed to sign out. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleLeaveHouse = async () => {
@@ -65,14 +84,17 @@ export default function DashboardScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
+              console.log('Attempting to leave house:', currentHouse.id);
               const { leaveHouse } = await import('@/services/houses');
               await leaveHouse(currentHouse.id);
+              console.log('Successfully left house');
               // Refresh house to clear current house
               await refreshHouse();
               // Redirect to join house screen
               router.replace('/join-house');
             } catch (error: any) {
-              Alert.alert('Error', error?.message || 'Failed to leave house');
+              console.error('Error leaving house:', error);
+              Alert.alert('Error', error?.message || 'Failed to leave house. Please try again.');
             }
           },
         },
@@ -332,8 +354,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: Colors.inputBorder,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
   },
   archiveText: {
     fontSize: 14,

@@ -272,27 +272,34 @@ export async function leaveHouse(houseId: string): Promise<void> {
     throw new Error('Hosts cannot leave their own house. Delete the house instead.');
   }
 
-  // Check if user is a member
-  const { data: member } = await supabase
+  // Check if user is a member - handle both error and null cases
+  const { data: member, error: memberError } = await supabase
     .from('house_members')
     .select('*')
     .eq('house_id', houseId)
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
 
+  // If there's an error (other than "no rows found"), throw it
+  if (memberError && memberError.code !== 'PGRST116') {
+    throw new Error(`Failed to check membership: ${memberError.message}`);
+  }
+
+  // If member doesn't exist, throw error
   if (!member) {
     throw new Error('You are not a member of this house');
   }
 
   // Remove from house_members
-  const { error } = await supabase
+  const { error: deleteError } = await supabase
     .from('house_members')
     .delete()
     .eq('house_id', houseId)
     .eq('user_id', user.id);
 
-  if (error) {
-    throw new Error(error.message);
+  if (deleteError) {
+    console.error('Error deleting house member:', deleteError);
+    throw new Error(`Failed to leave house: ${deleteError.message}`);
   }
 }
 

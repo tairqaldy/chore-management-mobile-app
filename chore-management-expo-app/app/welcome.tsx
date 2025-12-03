@@ -36,7 +36,9 @@ export default function WelcomeScreen() {
   if (authLoading || appLoading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>CHORES</Text>
+        <View style={styles.card}>
+          <Text style={styles.title}>CHORES</Text>
+        </View>
       </View>
     );
   }
@@ -47,18 +49,27 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>CHORES</Text>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="LOGIN"
-          onPress={() => router.push('/login')}
-          style={styles.button}
-        />
-        <Button
-          title="SIGN UP"
-          onPress={() => router.push('/signup')}
-          style={styles.button}
-        />
+      <View style={styles.card}>
+
+        <Text style={styles.title}>WELCOME TO THE CHORES!!</Text>
+
+        <Text style={styles.tagline}>
+          Fair, clear, and effortless chore management for households who want better collaboration.
+        </Text>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="LOGIN"
+            onPress={() => router.push('/login')}
+            style={styles.button}
+          />
+
+          <Button
+            title="SIGN UP"
+            onPress={() => router.push('/signup')}
+            style={styles.button}
+          />
+        </View>
       </View>
     </View>
   );
@@ -67,23 +78,66 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#0E0E10',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 60,
+
+  card: {
+    width: '90%',
+    backgroundColor: '#1A1A1D',
+    borderRadius: 24,
+    paddingVertical: 42,
+    paddingHorizontal: 26,
+    alignItems: 'center',
+
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 10,
+    elevation: 8,
+
+    borderWidth: 1,
+    borderColor: '#2A2A2E',
   },
+
+
+  title: {
+    fontSize: 46,
+    fontWeight: '900',
+    textAlign: 'center',
+    color: '#6BCF8E', 
+    marginBottom: 24,
+    letterSpacing: 3,
+  },
+
+  tagline: {
+    fontSize: 18,
+    color: '#AFAFAF',
+    textAlign: 'center',
+    marginBottom: 36,
+    lineHeight: 18,
+    fontWeight: 'bold',
+  },
+
   buttonContainer: {
     width: '100%',
     gap: 16,
   },
+
   button: {
     width: '100%',
+    height: 54,
+    backgroundColor: '#1E7D1E',
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 6,
   },
 });
-
