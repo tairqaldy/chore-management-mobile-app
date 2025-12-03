@@ -13,7 +13,7 @@ import { AssignChoreModal } from '@/components/AssignChoreModal';
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { user, signOut: signOutUser } = useAuth();
+  const { user, emailVerified, signOut: signOutUser } = useAuth();
   const { currentHouse, chores, archivedChores, tenants, refreshHouse, refreshChores, refreshArchivedChores, refreshTenants } = useApp();
   const [showAddChore, setShowAddChore] = useState(false);
   const [showAssignChore, setShowAssignChore] = useState(false);
@@ -24,6 +24,12 @@ export default function DashboardScreen() {
   const activeChores = chores.filter(chore => !chore.archived);
 
   useEffect(() => {
+    // Check email verification first
+    if (user && !emailVerified) {
+      router.replace('/verify-email');
+      return;
+    }
+
     if (!user) {
       router.replace('/welcome');
       return;
@@ -36,7 +42,7 @@ export default function DashboardScreen() {
         router.replace('/create-house');
       }
     }
-  }, [user, currentHouse]);
+  }, [user, emailVerified, currentHouse]);
 
   const handleSignOut = async () => {
     try {

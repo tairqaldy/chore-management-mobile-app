@@ -9,14 +9,20 @@ import { isFirstTimeUser } from '@/utils/helpers';
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, emailVerified } = useAuth();
   const { currentHouse, loading: appLoading } = useApp();
 
   useEffect(() => {
     // Wait for both auth and app context to finish loading
     if (!authLoading && !appLoading) {
       if (user) {
-        // User is logged in - check if they have a house
+        // Check if email is verified first
+        if (!emailVerified) {
+          router.replace('/verify-email');
+          return;
+        }
+        
+        // User is logged in and email is verified - check if they have a house
         if (!currentHouse) {
           // No house - redirect to setup
           if (user.role === 'tenant') {
@@ -31,7 +37,7 @@ export default function WelcomeScreen() {
       }
       // If no user, stay on welcome screen
     }
-  }, [user, authLoading, appLoading, currentHouse]);
+  }, [user, authLoading, appLoading, currentHouse, emailVerified]);
 
   if (authLoading || appLoading) {
     return (

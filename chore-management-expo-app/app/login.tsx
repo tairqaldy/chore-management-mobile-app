@@ -39,6 +39,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await signIn(email, password);
+      // The welcome screen will check email verification and redirect accordingly
       router.replace('/welcome');
     } catch (error: any) {
       Alert.alert('Login Failed', error.message || 'An error occurred');

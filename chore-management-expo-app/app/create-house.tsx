@@ -11,7 +11,7 @@ import { createHouse } from '@/services/houses';
 
 export default function CreateHouseScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, emailVerified } = useAuth();
   const { currentHouse, loading: appLoading, refreshHouse } = useApp();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -24,6 +24,12 @@ export default function CreateHouseScreen() {
   }>({});
 
   useEffect(() => {
+    // Check email verification first
+    if (user && !emailVerified) {
+      router.replace('/verify-email');
+      return;
+    }
+
     if (user?.role !== 'host') {
       router.replace('/welcome');
       return;
@@ -36,7 +42,7 @@ export default function CreateHouseScreen() {
         router.replace('/(dashboard)');
       }
     }
-  }, [user, currentHouse, appLoading]);
+  }, [user, emailVerified, currentHouse, appLoading]);
 
   // Watch for house to be set after creation
   useEffect(() => {

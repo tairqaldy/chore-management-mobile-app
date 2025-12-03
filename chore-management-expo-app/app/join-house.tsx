@@ -11,13 +11,19 @@ import { HouseWithDetails } from '@/types';
 
 export default function JoinHouseScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, emailVerified } = useAuth();
   const { currentHouse, loading: appLoading, refreshHouse } = useApp();
   const [houses, setHouses] = useState<HouseWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check email verification first
+    if (user && !emailVerified) {
+      router.replace('/verify-email');
+      return;
+    }
+
     if (user?.role !== 'tenant') {
       router.replace('/welcome');
       return;
@@ -33,7 +39,7 @@ export default function JoinHouseScreen() {
 
       loadHouses();
     }
-  }, [user, currentHouse, appLoading]);
+  }, [user, emailVerified, currentHouse, appLoading]);
 
   const loadHouses = async () => {
     try {

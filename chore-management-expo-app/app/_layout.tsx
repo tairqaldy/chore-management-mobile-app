@@ -24,6 +24,7 @@ export default function RootLayout() {
             <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="login" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="signup" options={{ headerShown: false, gestureEnabled: false }} />
+            <Stack.Screen name="verify-email" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="join-house" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="create-house" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="archive" options={{ headerShown: false, gestureEnabled: false }} />

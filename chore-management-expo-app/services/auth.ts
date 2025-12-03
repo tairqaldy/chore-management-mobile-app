@@ -126,3 +126,37 @@ export async function getSession() {
   return session;
 }
 
+/**
+ * Check if the current user's email is verified
+ */
+export async function isEmailVerified(): Promise<boolean> {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return false;
+  }
+
+  // Check if email is confirmed
+  return user.email_confirmed_at !== null;
+}
+
+/**
+ * Resend verification email
+ */
+export async function resendVerificationEmail(): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user || !user.email) {
+    throw new Error('No user found');
+  }
+
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: user.email,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
