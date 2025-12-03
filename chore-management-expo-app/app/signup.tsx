@@ -59,8 +59,8 @@ export default function SignupScreen() {
     setLoading(true);
     try {
       await signUp(email, password, username, role);
-      // After signup, redirect to email verification screen
-      router.replace('/verify-email');
+      // After signup, redirect to welcome screen
+      router.replace('/welcome');
     } catch (error: any) {
       Alert.alert('Signup Failed', error.message || 'An error occurred');
     } finally {
