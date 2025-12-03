@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { Chore } from '@/types';
 import { ChoreItem } from './ChoreItem';
 import { Colors } from '@/constants/theme';
@@ -12,17 +12,11 @@ interface ChoreListProps {
   onComplete?: (choreId: string) => void;
   onAssign?: (choreId: string) => void;
   onArchive?: (choreId: string) => void;
-<<<<<<< HEAD
   onDelete?: (choreId: string) => void;
   isArchiveView?: boolean;
 }
 
 export function ChoreList({ chores, isHost, currentUserId, onRefresh, onComplete, onAssign, onArchive, onDelete, isArchiveView }: ChoreListProps) {
-=======
-}
-
-export function ChoreList({ chores, isHost, currentUserId, onRefresh, onComplete, onAssign, onArchive }: ChoreListProps) {
->>>>>>> origin
   if (chores.length === 0) {
     return (
       <View style={styles.emptyContainer}>
@@ -43,11 +37,8 @@ export function ChoreList({ chores, isHost, currentUserId, onRefresh, onComplete
           onComplete={onComplete}
           onAssign={onAssign}
           onArchive={onArchive}
-<<<<<<< HEAD
           onDelete={onDelete}
           isArchiveView={isArchiveView}
-=======
->>>>>>> origin
         />
       )}
       refreshControl={
