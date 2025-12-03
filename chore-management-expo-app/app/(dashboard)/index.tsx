@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
 import { Colors } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
@@ -126,6 +127,7 @@ export default function DashboardScreen() {
               }} 
               style={styles.archiveButton}
             >
+              <Ionicons name="archive-outline" size={18} color={Colors.text} />
               <Text style={styles.archiveText}>Archive</Text>
             </TouchableOpacity>
             {!isHost && (
@@ -315,14 +317,20 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   archiveButton: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: Colors.cardBackground,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.inputBorder,
   },
   archiveText: {
     fontSize: 14,
     fontWeight: '600',
     color: Colors.text,
-    textDecorationLine: 'underline',
   },
   leaveHouseButton: {
     paddingVertical: 4,

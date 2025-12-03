@@ -26,6 +26,16 @@ async function addArchivedChoreId(choreId: string): Promise<void> {
   }
 }
 
+async function removeArchivedChoreId(choreId: string): Promise<void> {
+  try {
+    const archived = await getArchivedChoreIds();
+    const filtered = archived.filter(id => id !== choreId);
+    await AsyncStorage.setItem(ARCHIVED_CHORES_KEY, JSON.stringify(filtered));
+  } catch (error) {
+    console.error('Error removing archived chore:', error);
+  }
+}
+
 /**
  * Create a new chore
  */
@@ -547,6 +557,13 @@ export async function deleteChore(choreId: string): Promise<void> {
 
   if (!isCreator && !isHost) {
     throw new Error('You do not have permission to delete this chore');
+  }
+
+  // Remove from archived list if it exists
+  try {
+    await removeArchivedChoreId(choreId);
+  } catch (storageError) {
+    console.warn('Failed to remove archived chore from local storage:', storageError);
   }
 
   const { error } = await supabase

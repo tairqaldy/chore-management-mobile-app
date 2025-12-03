@@ -12,9 +12,11 @@ interface ChoreItemProps {
   onComplete?: (choreId: string) => void;
   onAssign?: (choreId: string) => void;
   onArchive?: (choreId: string) => void | Promise<void>;
+  onDelete?: (choreId: string) => void | Promise<void>;
+  isArchiveView?: boolean;
 }
 
-export function ChoreItem({ chore, isHost, currentUserId, onComplete, onAssign, onArchive }: ChoreItemProps) {
+export function ChoreItem({ chore, isHost, currentUserId, onComplete, onAssign, onArchive, onDelete, isArchiveView }: ChoreItemProps) {
   const statusColor = chore.status === 'done' ? Colors.statusDone : Colors.statusNotDone;
 
   const isAssignedToMe = chore.assigned_to_user_id === currentUserId;
@@ -57,56 +59,73 @@ export function ChoreItem({ chore, isHost, currentUserId, onComplete, onAssign, 
 
       <Text style={styles.date}>{formatDate(chore.created_at)}</Text>
 
-      {isHost && (
+      {isArchiveView ? (
+        // Archive view: show delete button
         <View style={styles.actions}>
-          {chore.status === 'not_done' && (
-            <>
-              {!chore.assigned_to_user_id && (
+          {onDelete && (
+            <TouchableOpacity
+              style={[styles.actionButton, styles.actionButtonDelete]}
+              onPress={() => onDelete(chore.id)}
+            >
+              <Text style={[styles.actionText, styles.deleteText]}>DELETE</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      ) : (
+        // Regular view: show normal actions
+        <>
+          {isHost && (
+            <View style={styles.actions}>
+              {chore.status === 'not_done' && (
+                <>
+                  {!chore.assigned_to_user_id && (
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => onAssign?.(chore.id)}
+                    >
+                      <Text style={styles.actionText}>ASSIGN</Text>
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => onComplete?.(chore.id)}
+                  >
+                    <Text style={styles.actionText}>FINISH</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+              {chore.status === 'done' && onArchive && (
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => onAssign?.(chore.id)}
+                  onPress={() => onArchive(chore.id)}
                 >
-                  <Text style={styles.actionText}>ASSIGN</Text>
+                  <Text style={styles.actionText}>ARCHIVE</Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => onComplete?.(chore.id)}
-              >
-                <Text style={styles.actionText}>FINISH</Text>
-              </TouchableOpacity>
-            </>
+            </View>
           )}
-          {chore.status === 'done' && onArchive && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => onArchive(chore.id)}
-            >
-              <Text style={styles.actionText}>ARCHIVE</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
 
-      {!isHost && (
-        <View style={styles.actions}>
-          {chore.status === 'not_done' && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => onComplete?.(chore.id)}
-            >
-              <Text style={styles.actionText}>FINISH</Text>
-            </TouchableOpacity>
+          {!isHost && (
+            <View style={styles.actions}>
+              {chore.status === 'not_done' && (
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => onComplete?.(chore.id)}
+                >
+                  <Text style={styles.actionText}>FINISH</Text>
+                </TouchableOpacity>
+              )}
+              {chore.status === 'done' && onArchive && (
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => onArchive(chore.id)}
+                >
+                  <Text style={styles.actionText}>ARCHIVE</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
-          {chore.status === 'done' && onArchive && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => onArchive(chore.id)}
-            >
-              <Text style={styles.actionText}>ARCHIVE</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+        </>
       )}
     </Card>
   );
@@ -167,6 +186,12 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontSize: 12,
     fontWeight: '600',
+  },
+  actionButtonDelete: {
+    backgroundColor: Colors.error,
+  },
+  deleteText: {
+    color: '#FFFFFF',
   },
 });
 

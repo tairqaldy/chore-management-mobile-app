@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,11 +7,12 @@ import { Colors } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
 import { useApp } from '@/context/AppContext';
 import { ChoreList } from '@/components/ChoreList';
+import { deleteChore } from '@/services/chores';
 
 export default function ArchiveScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const { archivedChores, refreshArchivedChores } = useApp();
+  const { archivedChores, refreshArchivedChores, refreshChores } = useApp();
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -29,6 +30,32 @@ export default function ArchiveScreen() {
       setRefreshing(false);
     }
   }, [refreshArchivedChores]);
+
+  const handleDelete = useCallback(async (choreId: string) => {
+    Alert.alert(
+      'Delete Chore',
+      'Are you sure you want to permanently delete this chore? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteChore(choreId);
+              await refreshArchivedChores();
+              await refreshChores();
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'Failed to delete chore');
+            }
+          },
+        },
+      ]
+    );
+  }, [refreshArchivedChores, refreshChores]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -50,16 +77,27 @@ export default function ArchiveScreen() {
           >
             <Ionicons name="arrow-back" size={24} color={Colors.text} />
           </TouchableOpacity>
-          <Text style={styles.title}>ARCHIVE</Text>
+          <View style={styles.titleContainer}>
+            <Ionicons name="archive" size={32} color={Colors.text} style={styles.titleIcon} />
+            <Text style={styles.title}>ARCHIVE</Text>
+          </View>
         </View>
 
-        <Text style={styles.subtitle}>Completed and Archived Chores</Text>
+        <View style={styles.infoContainer}>
+          <Text style={styles.subtitle}>Completed and Archived Chores</Text>
+          {archivedChores.length > 0 && (
+            <Text style={styles.countText}>
+              {archivedChores.length} {archivedChores.length === 1 ? 'chore' : 'chores'}
+            </Text>
+          )}
+        </View>
 
         {archivedChores.length === 0 ? (
           <View style={styles.emptyContainer}>
+            <Ionicons name="archive-outline" size={64} color={Colors.text} style={styles.emptyIcon} />
             <Text style={styles.emptyText}>No archived chores yet</Text>
             <Text style={styles.emptySubtext}>
-              Swipe left on completed chores to archive them
+              Complete chores and archive them to see them here
             </Text>
           </View>
         ) : (
@@ -68,6 +106,8 @@ export default function ArchiveScreen() {
             isHost={user?.role === 'host'}
             currentUserId={user?.id}
             onRefresh={refreshArchivedChores}
+            onDelete={handleDelete}
+            isArchiveView={true}
           />
         )}
       </ScrollView>
@@ -91,40 +131,66 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
     marginTop: 10,
   },
   backButton: {
     padding: 8,
     marginRight: 12,
   },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  titleIcon: {
+    marginRight: 8,
+  },
   title: {
     fontSize: 36,
     fontWeight: 'bold',
     color: Colors.text,
-    flex: 1,
+  },
+  infoContainer: {
+    marginBottom: 24,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.inputBorder,
   },
   subtitle: {
-    fontSize: 16,
-    color: Colors.text,
-    opacity: 0.8,
-    marginBottom: 20,
-  },
-  emptyContainer: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  emptyText: {
     fontSize: 18,
     color: Colors.text,
-    opacity: 0.6,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  countText: {
+    fontSize: 14,
+    color: Colors.text,
+    opacity: 0.7,
+  },
+  emptyContainer: {
+    padding: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyIcon: {
+    opacity: 0.4,
+    marginBottom: 20,
+  },
+  emptyText: {
+    fontSize: 20,
+    color: Colors.text,
+    opacity: 0.7,
+    fontWeight: '600',
     marginBottom: 8,
+    textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 14,
     color: Colors.text,
     opacity: 0.5,
     textAlign: 'center',
+    lineHeight: 20,
   },
 });
 
