@@ -25,6 +25,35 @@ export default function DashboardScreen() {
   // Filter chores to exclude archived ones and show only active ones
   const activeChores = chores.filter(chore => !chore.archived);
 
+  // Calculate completed tasks count for each user (for gamification placeholder)
+  // This counts all completed chores (done status) for each user
+  // For assigned chores: count goes to assigned user
+  // For unassigned chores: we'll need to track completer in future, for now count all completed
+  const completedTasksCount = React.useMemo(() => {
+    const count: Record<string, number> = {};
+    
+    // Initialize all tenants with 0
+    tenants.forEach(tenant => {
+      count[tenant.id] = 0;
+    });
+    
+    // Count completed chores
+    chores.forEach(chore => {
+      if (chore.status === 'done' && chore.completed_at) {
+        if (chore.assigned_to_user_id) {
+          // Assigned chore - count to assigned user
+          if (count[chore.assigned_to_user_id] !== undefined) {
+            count[chore.assigned_to_user_id] = (count[chore.assigned_to_user_id] || 0) + 1;
+          }
+        }
+        // Note: For unassigned completed chores, we'd need a "completed_by_user_id" field
+        // This is a placeholder for future gamification feature
+      }
+    });
+    
+    return count;
+  }, [chores, tenants]);
+
   useEffect(() => {
     if (!user) {
       router.replace('/welcome');
@@ -109,7 +138,7 @@ export default function DashboardScreen() {
         refreshHouse(),
         refreshChores(),
         refreshArchivedChores(),
-        user?.role === 'host' ? refreshTenants() : Promise.resolve(),
+        refreshTenants(),
       ]);
     } catch (error) {
       console.error('Error refreshing:', error);
@@ -125,24 +154,29 @@ export default function DashboardScreen() {
   const isHost = user.role === 'host';
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <ScrollView
         style={styles.container}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: 100 }]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.text}
+            tintColor="#6BCF8E"
           />
         }
       >
         <View style={styles.header}>
-          <Text style={styles.title}>CHORES</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>CHORES</Text>
+            <RoleIndicator role={user.role} style={styles.roleIndicator} />
+          </View>
           {currentHouse && (
-            <Text style={styles.houseName}>{currentHouse.name}</Text>
+            <View style={styles.houseNameContainer}>
+              <Ionicons name="home-outline" size={20} color="#6BCF8E" />
+              <Text style={styles.houseName}>{currentHouse.name}</Text>
+            </View>
           )}
-          <RoleIndicator role={user.role} style={styles.roleIndicator} />
           <View style={styles.headerButtons}>
             <TouchableOpacity 
               onPress={() => {
@@ -151,24 +185,31 @@ export default function DashboardScreen() {
               }} 
               style={styles.archiveButton}
             >
-              <Ionicons name="archive-outline" size={18} color={Colors.text} />
+              <Ionicons name="archive-outline" size={18} color="#6BCF8E" />
               <Text style={styles.archiveText}>Archive</Text>
             </TouchableOpacity>
             {!isHost && (
               <TouchableOpacity onPress={handleLeaveHouse} style={styles.leaveHouseButton}>
+                <Ionicons name="exit-outline" size={18} color="#FFA500" />
                 <Text style={styles.leaveHouseText}>Leave House</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton}>
-              <Text style={[styles.signOutText, { color: Colors.action }]}>Sign Out</Text>
+              <Ionicons name="log-out-outline" size={18} color={Colors.action} />
+              <Text style={styles.signOutText}>Sign Out</Text>
             </TouchableOpacity>
           </View>
         </View>
 
       {isHost ? (
         <View style={styles.hostContent}>
-          <Text style={styles.sectionTitle}>TENANTS:</Text>
-          <TenantList tenants={tenants} onRefresh={refreshTenants} />
+          <TenantList 
+            tenants={tenants} 
+            currentHouse={currentHouse}
+            currentUserId={user.id}
+            onRefresh={refreshTenants}
+            completedTasksCount={completedTasksCount}
+          />
 
           <Text style={styles.sectionTitle}>CHORES:</Text>
           <ChoreList
@@ -215,17 +256,17 @@ export default function DashboardScreen() {
               }
             }}
           />
-
-          <View style={styles.buttonRow}>
-            <Button
-              title="ADD TASK"
-              onPress={() => setShowAddChore(true)}
-              style={styles.button}
-            />
-          </View>
         </View>
       ) : (
         <View style={styles.tenantContent}>
+          <TenantList 
+            tenants={tenants} 
+            currentHouse={currentHouse}
+            currentUserId={user.id}
+            onRefresh={refreshTenants}
+            completedTasksCount={completedTasksCount}
+          />
+
           <Text style={styles.sectionTitle}>CHORES:</Text>
           <ChoreList
             chores={activeChores}
@@ -267,16 +308,17 @@ export default function DashboardScreen() {
               }
             }}
           />
-
-          <View style={styles.buttonRow}>
-            <Button
-              title="ADD"
-              onPress={() => setShowAddChore(true)}
-              style={styles.button}
-            />
-          </View>
         </View>
       )}
+
+      {/* Fixed bottom button */}
+      <View style={styles.bottomButtonContainer}>
+        <Button
+          title={isHost ? "ADD TASK" : "ADD"}
+          onPress={() => setShowAddChore(true)}
+          style={styles.bottomButton}
+        />
+      </View>
 
       <AddChoreModal
         visible={showAddChore}
@@ -307,35 +349,50 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#0E0E10',
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#0E0E10',
   },
   content: {
     padding: 20,
-    paddingTop: 10,
+    paddingTop: 80,
   },
   header: {
     marginBottom: 30,
-    marginTop: 10,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 8,
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#6BCF8E',
+    letterSpacing: 2,
+  },
+  houseNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#1A1A1D',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#2A2A2E',
   },
   houseName: {
-    fontSize: 20,
-    color: Colors.text,
-    opacity: 0.8,
-    marginBottom: 8,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#6BCF8E',
   },
   roleIndicator: {
-    alignSelf: 'flex-end',
-    marginBottom: 4,
+    marginLeft: 'auto',
   },
   headerButtons: {
     flexDirection: 'row',
@@ -350,35 +407,47 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: Colors.cardBackground,
+    backgroundColor: '#1A1A1D',
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: Colors.inputBorder,
+    borderColor: '#6BCF8E',
   },
   archiveText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.text,
-    textDecorationLine: 'underline',
+    color: '#6BCF8E',
   },
   leaveHouseButton: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#2A1F0A',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#FFA500',
   },
   leaveHouseText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.text,
-    textDecorationLine: 'underline',
+    color: '#FFA500',
   },
   signOutButton: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#2A0A0A',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.action,
   },
   signOutText: {
     fontSize: 14,
     fontWeight: '600',
-    textDecorationLine: 'underline',
+    color: Colors.action,
   },
   hostContent: {
     flex: 1,
@@ -389,18 +458,30 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: '#AFAFAF',
     marginTop: 20,
     marginBottom: 12,
   },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-    marginBottom: 40,
+  bottomButtonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    backgroundColor: '#0E0E10',
+    borderTopWidth: 1,
+    borderTopColor: '#2A2A2E',
   },
-  button: {
-    flex: 1,
+  bottomButton: {
+    width: '100%',
+    height: 54,
+    backgroundColor: '#1E7D1E',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 6,
   },
 });
 

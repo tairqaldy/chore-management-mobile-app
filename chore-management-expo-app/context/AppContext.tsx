@@ -80,7 +80,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     try {
       const houseTenants = await getHouseTenants(currentHouse.id);
-      setTenants(houseTenants);
+      
+      // Get host user info
+      const { supabase } = await import('@/services/supabase');
+      const { data: hostUser, error: hostError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', currentHouse.host_id)
+        .single();
+
+      if (hostError) {
+        console.error('Error fetching host:', hostError);
+      }
+
+      // Filter out host from tenants if they're already there (shouldn't happen, but just in case)
+      const tenantsWithoutHost = houseTenants.filter(t => t.id !== currentHouse.host_id);
+      
+      // Combine host and tenants, with host first
+      const allMembers = hostUser ? [hostUser, ...tenantsWithoutHost] : tenantsWithoutHost;
+      setTenants(allMembers);
     } catch (error) {
       console.error('Error refreshing tenants:', error);
       setTenants([]);
@@ -104,9 +122,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (currentHouse) {
       refreshChores();
       refreshArchivedChores();
-      if (user?.role === 'host') {
-        refreshTenants();
-      }
+      // Always refresh tenants (includes host) for both roles
+      refreshTenants();
     } else {
       setChores([]);
       setArchivedChores([]);

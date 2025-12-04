@@ -39,21 +39,21 @@ export default function ArchiveScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.text}
+            tintColor="#6BCF8E"
           />
         }
       >
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton} 
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color={Colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.title}>ARCHIVE</Text>
-        </View>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={26} color="#6BCF8E" />
+        </TouchableOpacity>
 
-        <Text style={styles.subtitle}>Completed and Archived Chores</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>CHORES</Text>
+          <Text style={styles.subtitle}>ARCHIVE</Text>
+        </View>
 
         {archivedChores.length === 0 ? (
           <View style={styles.emptyContainer}>
@@ -78,37 +78,39 @@ export default function ArchiveScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#0E0E10',
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#0E0E10',
   },
   content: {
     padding: 20,
-    paddingTop: 10,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 10,
+    paddingTop: 80,
   },
   backButton: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    zIndex: 10,
     padding: 8,
-    marginRight: 12,
+  },
+  header: {
+    marginBottom: 30,
   },
   title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: Colors.text,
-    flex: 1,
+    fontSize: 42,
+    fontWeight: '900',
+    color: '#6BCF8E',
+    textAlign: 'center',
+    letterSpacing: 2,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 16,
-    color: Colors.text,
-    opacity: 0.8,
-    marginBottom: 20,
+    fontSize: 20,
+    color: '#AFAFAF',
+    textAlign: 'center',
+    marginBottom: 30,
   },
   emptyContainer: {
     padding: 40,
@@ -116,13 +118,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    color: Colors.text,
+    color: '#AFAFAF',
     opacity: 0.6,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: Colors.text,
+    color: '#AFAFAF',
     opacity: 0.5,
     textAlign: 'center',
   },
